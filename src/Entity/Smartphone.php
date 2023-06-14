@@ -26,6 +26,10 @@ class Smartphone
     #[ORM\Column]
     private ?\DateTimeImmutable $phone_created_at = null;
 
+    #[ORM\ManyToOne(inversedBy: 'smartphones')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Society $Society = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +79,18 @@ class Smartphone
     public function setPhoneCreatedAt(\DateTimeImmutable $phone_created_at): static
     {
         $this->phone_created_at = $phone_created_at;
+
+        return $this;
+    }
+
+    public function getSociety(): ?Society
+    {
+        return $this->Society;
+    }
+
+    public function setSociety(?Society $Society): static
+    {
+        $this->Society = $Society;
 
         return $this;
     }
