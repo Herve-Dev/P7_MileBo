@@ -17,14 +17,16 @@ class SmartphoneController extends AbstractController
     {
         $smartphoneList = $smartphoneRepository->findAll();
 
-        $jsonSmartphoneList = $serializer->serialize($smartphoneList, 'json');
+        //On précise le contexte avec la classe Groups serializer appelé dans mes entités
+        $jsonSmartphoneList = $serializer->serialize($smartphoneList, 'json', ['groups' => 'getSmartphones']);
         return new JsonResponse($jsonSmartphoneList, Response::HTTP_OK, [], true);
     }
 
     #[Route('/api/smartphone/{id}', name: 'app_smartphone_detail', methods: ['GET'])]
     public function getDetailSmartphone(Smartphone $smartphone, SerializerInterface $serializer)
     {
-        $jsonSmartphone = $serializer->serialize($smartphone, 'json');
+        //On précise le contexte avec la classe Groups serializer appelé dans mes entités
+        $jsonSmartphone = $serializer->serialize($smartphone, 'json', ['groups' => 'getSmartphones']);
         return new JsonResponse($jsonSmartphone, Response::HTTP_OK, [], true);
     }
 }
