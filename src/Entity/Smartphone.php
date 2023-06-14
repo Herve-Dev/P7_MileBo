@@ -32,7 +32,7 @@ class Smartphone
     #[Groups(["getSmartphones"])]
     private ?\DateTimeImmutable $phone_created_at = null;
 
-    #[ORM\ManyToOne(inversedBy: 'smartphones')]
+    #[ORM\ManyToOne(inversedBy: 'smartphones', cascade:['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(["getSmartphones"])]
     private ?Society $Society = null;
