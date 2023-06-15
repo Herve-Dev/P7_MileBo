@@ -6,6 +6,7 @@ use App\Repository\SmartphoneRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SmartphoneRepository::class)]
 class Smartphone
@@ -18,6 +19,8 @@ class Smartphone
 
     #[ORM\Column(length: 255)]
     #[Groups(["getSmartphones"])]
+    #[Assert\NotBlank(message: "la marque du téléphone est obligatoire")]
+    #[Assert\length(min: 1, max: 255, minMessage: "La marque du telephone doit faire au moins {{limit}} caractères", maxMessage: "La marque du telephone ne peut deppaser {{limit}} caractères")]
     private ?string $phone_brand = null;
 
     #[ORM\Column(length: 255)]
@@ -32,7 +35,7 @@ class Smartphone
     #[Groups(["getSmartphones"])]
     private ?\DateTimeImmutable $phone_created_at = null;
 
-    #[ORM\ManyToOne(inversedBy: 'smartphones')]
+    #[ORM\ManyToOne(inversedBy: 'smartphones', cascade:['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(["getSmartphones"])]
     private ?Society $Society = null;
