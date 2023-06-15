@@ -12,8 +12,11 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Validator\Constraints\Valid;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class SmartphoneController extends AbstractController
 {
@@ -46,7 +49,7 @@ class SmartphoneController extends AbstractController
 
     #[Route('/api/smartphones', name: 'app_smartphone', methods: ['POST'])]
     public function createSmartphone(Request $request, SerializerInterface $serializer, EntityManagerInterface $em,
-    UrlGeneratorInterface $urlGenerator): JsonResponse
+    UrlGeneratorInterface $urlGenerator, ValidatorInterface $validator): JsonResponse
     {
         $smartphone = $serializer->deserialize($request->getContent(), Smartphone::class, 'json');
 
@@ -55,6 +58,13 @@ class SmartphoneController extends AbstractController
 
         //Je le stock dans mon setSociety 
         $smartphone->setSociety($society);
+
+        //On vérifie les erreurs
+        $errors = $validator->Validate($smartphone);
+        if ($errors->count() > 0) {
+            return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+            //throw new HttpException(JsonResponse::HTTP_BAD_REQUEST, "La requête est invalide");
+        }
 
         $em->persist($smartphone);
         $em->flush();
