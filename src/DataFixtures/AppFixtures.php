@@ -9,9 +9,13 @@ use App\Entity\Society;
 use App\Entity\User;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
+    public function __construct(private UserPasswordHasherInterface $passwordEncoder){}
+
+
     public function load(ObjectManager $manager): void
     {
 
@@ -41,6 +45,16 @@ class AppFixtures extends Fixture
 
         }
 
+        $admin = new User();
+        $admin->setEmail($faker->email());
+        $admin->setRoles(['ROLE_ADMIN']);
+        $admin->setUsername('MilBo');
+        $admin->setPassword(
+            $this->passwordEncoder->hashPassword($admin, 'PasswordAdmin123')
+        );
+
+        $manager->persist($admin);
+
         $arrayCustomers = [
             'Apple',
             'Samsung',
@@ -48,10 +62,37 @@ class AppFixtures extends Fixture
             'Sony',
             'Google',
         ];
-
+        
+        //Création des clients
         for ($cts=0; $cts < 5 ; $cts++) { 
             $customers = new User();
             $customers->setEmail($faker->email());
+            $customers->setRoles(['ROLE_CUSTOMERS']);
+            $customers->setUsername($arrayCustomers[$cts]);
+            $customers->setPassword(
+                $this->passwordEncoder->hashPassword($customers, 'PasswordCustomer123')
+            );
+            
+            $manager->persist($customers);
+            $parents[] = $customers;
+        }
+
+        //Création des users lié au clients
+        for ($usr=0; $usr < 50 ; $usr++) { 
+            $user = new User();
+            $user->setEmail($faker->email());
+            $user->setRoles(['ROLE_USER']);
+            $user->setUsername($faker->userName());
+            $user->setPassword(
+                $this->passwordEncoder->hashPassword($user, 'PasswordUser123')
+            );
+
+            //Assigner un parent aléatoirement parmi les parents existants
+            $randomIndex = array_rand($parents);
+            $customer = $parents[$randomIndex];
+            $user->setParent($customer);
+
+            $manager->persist($user);
         }
        
 
