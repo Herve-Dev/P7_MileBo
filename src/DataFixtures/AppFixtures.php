@@ -6,6 +6,7 @@ use Faker;
 use DateTimeImmutable;
 use App\Entity\Smartphone;
 use App\Entity\Society;
+use App\Entity\User;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 
@@ -39,6 +40,20 @@ class AppFixtures extends Fixture
             $manager->persist($smarthone);
 
         }
+
+        $arrayCustomers = [
+            'Apple',
+            'Samsung',
+            'Huawei',
+            'Sony',
+            'Google',
+        ];
+
+        for ($cts=0; $cts < 5 ; $cts++) { 
+            $customers = new User();
+            $customers->setEmail($faker->email());
+        }
+       
 
         $manager->flush();
     }
