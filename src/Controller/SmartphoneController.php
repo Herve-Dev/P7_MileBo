@@ -62,6 +62,7 @@ class SmartphoneController extends AbstractController
         //On vérifie les erreurs
         $errors = $validator->Validate($smartphone);
         if ($errors->count() > 0) {
+            //return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], false);
             throw new HttpException(JsonResponse::HTTP_BAD_REQUEST, "La requête est invalide");
         }
 
