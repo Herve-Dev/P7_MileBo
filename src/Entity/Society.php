@@ -2,11 +2,12 @@
 
 namespace App\Entity;
 
-use App\Repository\SocietyRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\SocietyRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: SocietyRepository::class)]
 class Society
@@ -14,12 +15,15 @@ class Society
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["getSmartphones"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(["getSmartphones"])]
     private ?string $society_name = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(["getSmartphones"])]
     private ?string $society_description = null;
 
     #[ORM\OneToMany(mappedBy: 'Society', targetEntity: Smartphone::class, orphanRemoval: true)]

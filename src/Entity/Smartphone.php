@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\SmartphoneRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: SmartphoneRepository::class)]
 class Smartphone
@@ -12,22 +13,28 @@ class Smartphone
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["getSmartphones"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(["getSmartphones"])]
     private ?string $phone_brand = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(["getSmartphones"])]
     private ?string $phone_model = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(["getSmartphones"])]
     private ?string $phone_description = null;
 
     #[ORM\Column]
+    #[Groups(["getSmartphones"])]
     private ?\DateTimeImmutable $phone_created_at = null;
 
-    #[ORM\ManyToOne(inversedBy: 'smartphones')]
+    #[ORM\ManyToOne(inversedBy: 'smartphones', cascade:['persist'])]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(["getSmartphones"])]
     private ?Society $Society = null;
 
     public function getId(): ?int
