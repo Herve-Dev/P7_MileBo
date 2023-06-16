@@ -48,7 +48,7 @@ class AppFixtures extends Fixture
         $admin = new User();
         $admin->setEmail($faker->email());
         $admin->setRoles(['ROLE_ADMIN']);
-        $admin->setUsername('MilBo');
+        $admin->setPseudo('MilBo');
         $admin->setPassword(
             $this->passwordEncoder->hashPassword($admin, 'PasswordAdmin123')
         );
@@ -68,7 +68,7 @@ class AppFixtures extends Fixture
             $customers = new User();
             $customers->setEmail($faker->email());
             $customers->setRoles(['ROLE_CUSTOMERS']);
-            $customers->setUsername($arrayCustomers[$cts]);
+            $customers->setPseudo($arrayCustomers[$cts]);
             $customers->setPassword(
                 $this->passwordEncoder->hashPassword($customers, 'PasswordCustomer123')
             );
@@ -82,7 +82,7 @@ class AppFixtures extends Fixture
             $user = new User();
             $user->setEmail($faker->email());
             $user->setRoles(['ROLE_USER']);
-            $user->setUsername($faker->userName());
+            $user->setPseudo($faker->userName());
             $user->setPassword(
                 $this->passwordEncoder->hashPassword($user, 'PasswordUser123')
             );

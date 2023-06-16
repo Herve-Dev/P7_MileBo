@@ -47,7 +47,7 @@ class SmartphoneController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route('/api/smartphones', name: 'app_smartphone', methods: ['POST'])]
+    #[Route('/api/smartphones', name: 'app_smartphone_add', methods: ['POST'])]
     public function createSmartphone(Request $request, SerializerInterface $serializer, EntityManagerInterface $em,
     UrlGeneratorInterface $urlGenerator, ValidatorInterface $validator): JsonResponse
     {
