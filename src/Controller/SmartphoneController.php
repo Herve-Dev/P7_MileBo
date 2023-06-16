@@ -7,6 +7,7 @@ use App\Entity\Society;
 use App\Repository\SmartphoneRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -22,7 +23,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class SmartphoneController extends AbstractController
 {
     #[Route('/api/smartphones', name: 'app_smartphone', methods: ['GET'])]
-    #[IsGranted('ROLE_ADMIN', 'ROLE_CUSTOMERS', message: "Vous n'avez pas les droits suffisant pour consulter les mobiles de la société (MilBo)")]
+    //#[IsGranted('ROLE_CUSTOMERS', message: "Vous n'avez pas les droits suffisant pour consulter les mobiles de la société (MilBo)")]
+    #[Security('is_granted("ROLE_CUSTOMERS") or is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function getAllSmartphones(SmartphoneRepository $smartphoneRepository, SerializerInterface $serializer): JsonResponse
     {
         $smartphoneList = $smartphoneRepository->findAll();
