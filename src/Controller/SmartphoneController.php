@@ -23,7 +23,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class SmartphoneController extends AbstractController
 {
     #[Route('/api/smartphones', name: 'app_smartphone', methods: ['GET'])]
-    //#[IsGranted('ROLE_CUSTOMERS', message: "Vous n'avez pas les droits suffisant pour consulter les mobiles de la société (MilBo)")]
     #[Security('is_granted("ROLE_CUSTOMERS") or is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function getAllSmartphones(SmartphoneRepository $smartphoneRepository, SerializerInterface $serializer): JsonResponse
     {
