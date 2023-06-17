@@ -55,9 +55,14 @@ class SmartphoneController extends AbstractController
 
     #[Route('/api/smartphones', name: 'app_smartphone_add', methods: ['POST'])]
     #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
-    public function createSmartphone(Request $request, SerializerInterface $serializer, EntityManagerInterface $em,
-    UrlGeneratorInterface $urlGenerator, ValidatorInterface $validator, SocietyRepository $society): JsonResponse
-    {
+    public function createSmartphone(
+        Request $request,
+        SerializerInterface $serializer,
+        EntityManagerInterface $em,
+        UrlGeneratorInterface $urlGenerator,
+        ValidatorInterface $validator,
+        SocietyRepository $society
+    ): JsonResponse {
         $smartphone = $serializer->deserialize($request->getContent(), Smartphone::class, 'json');
 
         // Récupération de l'ensemble des données envoyées sous forme de tableau
@@ -66,7 +71,7 @@ class SmartphoneController extends AbstractController
         // Récupération de l'idAuthor. S'il n'est pas défini, alors on met -1 par défaut.
         $idSociety = $content['idSociety'] ?? -1;
 
-        //Je le stock dans mon setSociety 
+        //Je le stock dans mon setSociety
         $smartphone->setSociety($society->find($idSociety));
 
         //On vérifie les erreurs
@@ -82,7 +87,7 @@ class SmartphoneController extends AbstractController
         //On précise le contexte avec la classe Groups serializer appelé dans mes entités
         $jsonSmartphone = $serializer->serialize($smartphone, 'json', ['groups' => 'getSmartphones']);
 
-        
+
         //On génère une url qui sera retourné pour avoir acces au nouveau smartphone rajouté
         $location = $urlGenerator->generate('app_smartphone_detail', ['id' => $smartphone->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 
@@ -92,9 +97,9 @@ class SmartphoneController extends AbstractController
 
     #[Route('/api/smartphone/{id}', name: 'app_smartphone_update', methods: ['PUT'])]
     #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
-    public function updateSmartphone(Request $request ,Smartphone $currentSmartphone, SerializerInterface $serializer, EntityManagerInterface $em, SocietyRepository $society): JsonResponse
+    public function updateSmartphone(Request $request, Smartphone $currentSmartphone, SerializerInterface $serializer, EntityManagerInterface $em, SocietyRepository $society): JsonResponse
     {
-        //AbstractNormalizer fonction pour ecrire dans la donnée récupérée 
+        //AbstractNormalizer fonction pour ecrire dans la donnée récupérée
         $updateSmartphone = $serializer->deserialize($request->getContent(), Smartphone::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $currentSmartphone]);
 
 
@@ -104,7 +109,7 @@ class SmartphoneController extends AbstractController
         // Récupération de l'idAuthor. S'il n'est pas défini, alors on met -1 par défaut.
         $idSociety = $content['idSociety'] ?? -1;
 
-        //Je le stock dans mon setSociety 
+        //Je le stock dans mon setSociety
         $updateSmartphone->setSociety($society->find($idSociety));
 
         $em->persist($updateSmartphone);
