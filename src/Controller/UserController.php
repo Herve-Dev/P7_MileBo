@@ -42,6 +42,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/api/utilisateurs/client/{id}', name: 'app_user')]
+    #[Security('is_granted("ROLE_CUSTOMERS") or is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function getAllUsersByCustomers(int $id, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {
         $users = $userRepository->findUsersByRoleAndParentId($id);
