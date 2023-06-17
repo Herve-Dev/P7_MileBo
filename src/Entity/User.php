@@ -36,7 +36,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $users;
 
     #[ORM\Column(length: 255)]
-    private ?string $username = null;
+    private ?string $pseudo = null;
+
 
     public function __construct()
     {
@@ -68,6 +69,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
+    }
+
+    /**
+     * Méthode getUsername qui permet de retourner le champ qui est utilisé pour l'authentification.
+     *
+     * @return string
+     */
+    public function getUsername(): string
+    {
+        return $this->getUserIdentifier();
     }
 
     /**
@@ -155,15 +166,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getUsername(): ?string
+    public function getPseudo(): ?string
     {
-        return $this->username;
+        return $this->pseudo;
     }
 
-    public function setUsername(string $username): static
+    public function setPseudo(string $pseudo): static
     {
-        $this->username = $username;
+        $this->pseudo = $pseudo;
 
         return $this;
     }
+
 }

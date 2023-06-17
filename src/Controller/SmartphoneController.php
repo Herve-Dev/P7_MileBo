@@ -6,6 +6,8 @@ use App\Entity\Smartphone;
 use App\Entity\Society;
 use App\Repository\SmartphoneRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -21,6 +23,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class SmartphoneController extends AbstractController
 {
     #[Route('/api/smartphones', name: 'app_smartphone', methods: ['GET'])]
+    #[Security('is_granted("ROLE_CUSTOMERS") or is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function getAllSmartphones(SmartphoneRepository $smartphoneRepository, SerializerInterface $serializer): JsonResponse
     {
         $smartphoneList = $smartphoneRepository->findAll();
@@ -31,6 +34,7 @@ class SmartphoneController extends AbstractController
     }
 
     #[Route('/api/smartphone/{id}', name: 'app_smartphone_detail', methods: ['GET'])]
+    #[Security('is_granted("ROLE_CUSTOMERS") or is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function getDetailSmartphone(Smartphone $smartphone, SerializerInterface $serializer): JsonResponse
     {
         //On précise le contexte avec la classe Groups serializer appelé dans mes entités
@@ -39,6 +43,7 @@ class SmartphoneController extends AbstractController
     }
 
     #[Route('/api/smartphone/{id}', name: 'app_smartphone_delete', methods: ['DELETE'])]
+    #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function deleteSmartphone(Smartphone $smartphone, EntityManagerInterface $em): JsonResponse
     {
         //Supression du smartphone avec l'id lié
@@ -47,14 +52,15 @@ class SmartphoneController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route('/api/smartphones', name: 'app_smartphone', methods: ['POST'])]
+    #[Route('/api/smartphones', name: 'app_smartphone_add', methods: ['POST'])]
+    #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function createSmartphone(Request $request, SerializerInterface $serializer, EntityManagerInterface $em,
     UrlGeneratorInterface $urlGenerator, ValidatorInterface $validator): JsonResponse
     {
         $smartphone = $serializer->deserialize($request->getContent(), Smartphone::class, 'json');
 
         //Je vais chercher mon entité society Milbo pour le lier a mon nouveau smartphone ajouter 
-        $society = $em->getReference(Society::class, 1);
+        $society = $em->getReference(Society::class, 6);
 
         //Je le stock dans mon setSociety 
         $smartphone->setSociety($society);
@@ -81,6 +87,7 @@ class SmartphoneController extends AbstractController
     }
 
     #[Route('/api/smartphone/{id}', name: 'app_smartphone_update', methods: ['PUT'])]
+    #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function updateSmartphone(Request $request ,Smartphone $currentSmartphone, SerializerInterface $serializer, EntityManagerInterface $em): JsonResponse
     {
         //AbstractNormalizer fonction pour ecrire dans la donnée récupérée 
