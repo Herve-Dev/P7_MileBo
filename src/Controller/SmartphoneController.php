@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Smartphone;
 use App\Entity\Society;
 use App\Repository\SmartphoneRepository;
+use App\Repository\SocietyRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -55,15 +56,18 @@ class SmartphoneController extends AbstractController
     #[Route('/api/smartphones', name: 'app_smartphone_add', methods: ['POST'])]
     #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function createSmartphone(Request $request, SerializerInterface $serializer, EntityManagerInterface $em,
-    UrlGeneratorInterface $urlGenerator, ValidatorInterface $validator): JsonResponse
+    UrlGeneratorInterface $urlGenerator, ValidatorInterface $validator, SocietyRepository $society): JsonResponse
     {
         $smartphone = $serializer->deserialize($request->getContent(), Smartphone::class, 'json');
 
-        //Je vais chercher mon entité society Milbo pour le lier a mon nouveau smartphone ajouter 
-        $society = $em->getReference(Society::class, 6);
+        // Récupération de l'ensemble des données envoyées sous forme de tableau
+        $content = $request->toArray();
+
+        // Récupération de l'idAuthor. S'il n'est pas défini, alors on met -1 par défaut.
+        $idSociety = $content['idSociety'] ?? -1;
 
         //Je le stock dans mon setSociety 
-        $smartphone->setSociety($society);
+        $smartphone->setSociety($society->find($idSociety));
 
         //On vérifie les erreurs
         $errors = $validator->Validate($smartphone);
