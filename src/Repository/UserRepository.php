@@ -58,6 +58,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     /**
      * Requête custom sur objet JSON
+     * (Problèmes de retour avec findBy)
      *
      * @return array
      */
