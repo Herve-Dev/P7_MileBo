@@ -138,4 +138,22 @@ class UserController extends AbstractController
         //Je renvoi ma variable location dans ma jsonResponse
         return new JsonResponse($jsonNewUser, Response::HTTP_CREATED, ['location' => $location], true);
     }
+
+    #[Route('/api/delete_utilisateur/{id}', name: 'app_user_delete', methods: ['DELETE'])]
+    #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
+    public function deleteUser(User $user, EntityManagerInterface $em) : JsonResponse
+    {
+        if (count($user->getRoles()) === 1 && in_array('ROLE_USER', $user->getRoles())) {
+            $em->remove($user);
+            $em->flush();
+            return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        }
+
+        $responseData = [
+            'message' => "Cette action n'est pas possible",
+        ];
+        return new JsonResponse($responseData, Response::HTTP_FORBIDDEN);
+        
+    }
+
 }
