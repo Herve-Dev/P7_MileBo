@@ -68,7 +68,7 @@ class SmartphoneController extends AbstractController
         // Récupération de l'ensemble des données envoyées sous forme de tableau
         $content = $request->toArray();
 
-        // Récupération de l'idAuthor. S'il n'est pas défini, alors on met -1 par défaut.
+        // Récupération de l'idSociety. S'il n'est pas défini, alors on met -1 par défaut.
         $idSociety = $content['idSociety'] ?? -1;
 
         //Je le stock dans mon setSociety
