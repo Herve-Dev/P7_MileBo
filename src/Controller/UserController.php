@@ -46,7 +46,7 @@ class UserController extends AbstractController
     public function getAllUsersByCustomers(int $id, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {
         $users = $userRepository->findUsersByRoleAndParentId($id);
-    
+
         $jsonUsers = $serializer->serialize($users, 'json', ['groups' => 'getUsers']);
         return new JsonResponse($jsonUsers, Response::HTTP_OK, [], true);
     }
@@ -66,7 +66,7 @@ class UserController extends AbstractController
             ];
             return new JsonResponse($responseData, Response::HTTP_FORBIDDEN);
         }
-        
+
 
         $jsonUser = $serializer->serialize($user, 'json', ['groups' => 'getUsers']);
         return new JsonResponse($jsonUser, Response::HTTP_OK, [], true);
