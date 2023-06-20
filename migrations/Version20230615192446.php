@@ -20,7 +20,7 @@ final class Version20230615192446 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE user ADD parent_id INT DEFAULT NULL, DROP parent');
+        $this->addSql('ALTER TABLE user ADD parent_id INT DEFAULT NULL');
         $this->addSql('ALTER TABLE user ADD CONSTRAINT FK_8D93D649727ACA70 FOREIGN KEY (parent_id) REFERENCES user (id)');
         $this->addSql('CREATE INDEX IDX_8D93D649727ACA70 ON user (parent_id)');
     }
