@@ -25,9 +25,13 @@ class SmartphoneController extends AbstractController
 {
     #[Route('/api/smartphones', name: 'app_smartphone', methods: ['GET'])]
     #[Security('is_granted("ROLE_CUSTOMERS") or is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
-    public function getAllSmartphones(SmartphoneRepository $smartphoneRepository, SerializerInterface $serializer): JsonResponse
+    public function getAllSmartphones(SmartphoneRepository $smartphoneRepository, SerializerInterface $serializer, Request $request): JsonResponse
     {
-        $smartphoneList = $smartphoneRepository->findAll();
+        //Syteme de pagination
+        $page = $request->get('page', 1);
+        $limit = $request->get('limit', 10);
+        
+        $smartphoneList = $smartphoneRepository->findAllWithPagination($page, $limit);
 
         //On précise le contexte avec la classe Groups serializer appelé dans mes entités
         $jsonSmartphoneList = $serializer->serialize($smartphoneList, 'json', ['groups' => 'getSmartphones']);
