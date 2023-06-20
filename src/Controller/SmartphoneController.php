@@ -20,21 +20,36 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Validator\Constraints\Valid;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
+use Symfony\Component\DependencyInjection\Loader\Configurator\serializer;
 
 class SmartphoneController extends AbstractController
 {
     #[Route('/api/smartphones', name: 'app_smartphone', methods: ['GET'])]
     #[Security('is_granted("ROLE_CUSTOMERS") or is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
-    public function getAllSmartphones(SmartphoneRepository $smartphoneRepository, SerializerInterface $serializer, Request $request): JsonResponse
+    public function getAllSmartphones(SmartphoneRepository $smartphoneRepository, 
+        SerializerInterface $serializer, 
+        Request $request,
+        TagAwareCacheInterface $cache): JsonResponse
     {
         //Syteme de pagination
         $page = $request->get('page', 1);
         $limit = $request->get('limit', 10);
-        
-        $smartphoneList = $smartphoneRepository->findAllWithPagination($page, $limit);
+
+        $idCache = "getAllSmartphone-" . $page . "-" .$limit;
+
+        $jsonSmartphoneList = $cache->get($idCache, function (ItemInterface $item) use ($smartphoneRepository, $page, $limit, $serializer){
+            echo ("L'element n'est pas encore en cache \n");
+            $item->tag("smartphonesCache");
+            //Je met en place une expiration de mon cache de 60 secondes (securité pour ne pas avoir de données érroné en cas de manipulatio)
+            $item->expiresAfter(60);
+            $smartphoneList = $smartphoneRepository->findAllWithPagination($page, $limit);
+            return $serializer->serialize($smartphoneList, 'json', ['groups' => 'getSmartphones']);
+        });
 
         //On précise le contexte avec la classe Groups serializer appelé dans mes entités
-        $jsonSmartphoneList = $serializer->serialize($smartphoneList, 'json', ['groups' => 'getSmartphones']);
+        //$jsonSmartphoneList = $serializer->serialize($smartphoneList, 'json', ['groups' => 'getSmartphones']);
         return new JsonResponse($jsonSmartphoneList, Response::HTTP_OK, [], true);
     }
 
@@ -49,8 +64,11 @@ class SmartphoneController extends AbstractController
 
     #[Route('/api/smartphone/{id}', name: 'app_smartphone_delete', methods: ['DELETE'])]
     #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
-    public function deleteSmartphone(Smartphone $smartphone, EntityManagerInterface $em): JsonResponse
+    public function deleteSmartphone(Smartphone $smartphone, EntityManagerInterface $em, TagAwareCacheInterface $cache): JsonResponse
     {
+        //Suppression de la donnée en cache important pour ne pas récupérer les données alors qu'elle sont delete
+        $cache->invalidateTags(["smartphonesCache"]);
+
         //Supression du smartphone avec l'id lié
         $em->remove($smartphone);
         $em->flush();
