@@ -56,6 +56,74 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->save($user, true);
     }
 
+    /**
+     * Requête custom sur objet JSON
+     * (Problèmes de retour avec findBy)
+     *
+     * @return array
+     */
+    public function findByRoleCustomers(): array
+    {
+        $queryBuilder = $this->createQueryBuilder('u');
+        $expr = $queryBuilder->expr();
+
+        $queryBuilder->where(
+            $expr->like('u.roles', $expr->literal('%ROLE_CUSTOMERS%'))
+        );
+
+        $query = $queryBuilder->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * Méthode pour trouver un Client via son id
+     * (Besoin d'une requete custom car role JSON)
+     *
+     * @param integer $id
+     * @return User|null
+     */
+    public function findCustomerById(int $id): ?User
+    {
+        $queryBuilder = $this->createQueryBuilder('u');
+        $expr = $queryBuilder->expr();
+
+        $queryBuilder
+            ->where(
+                $expr->andX(
+                    $expr->like('u.roles', $expr->literal('%ROLE_CUSTOMERS%')),
+                    $expr->eq('u.id', ':id')
+                )
+            )
+            ->setParameter('id', $id)
+            ->setMaxResults(1);
+
+        $query = $queryBuilder->getQuery();
+
+        return $query->getOneOrNullResult();
+    }
+
+    public function findUsersByRoleAndParentId(int $parentId): array
+    {
+        $queryBuilder = $this->createQueryBuilder('u');
+        $expr = $queryBuilder->expr();
+
+        $queryBuilder
+            ->select('u', 'p') // Sélectionne l'utilisateur et l'entité parent
+            ->leftJoin('u.parent', 'p') // Effectue une jointure sur la relation parent
+            ->where(
+                $expr->andX(
+                    $expr->eq('u.parent', ':parentId'),
+                    $expr->like('u.roles', $expr->literal('%ROLE_USER%'))
+                )
+            )
+            ->setParameter('parentId', $parentId);
+
+        $query = $queryBuilder->getQuery();
+
+        return $query->getResult();
+    }
+
 //    /**
 //     * @return User[] Returns an array of User objects
 //     */
