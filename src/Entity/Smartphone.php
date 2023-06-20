@@ -7,7 +7,44 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Hateoas\Configuration\Annotation as Hateoas;
 
+/**
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "app_smartphone_detail",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getSmartphones")
+ * )
+ * 
+ * @Hateoas\Relation(
+ *      "add",
+ *      href = @Hateoas\Route(
+ *          "app_smartphone_add",
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getSmartphones", excludeIf = "expr(not is_granted('ROLE_ADMIN'))")
+ * )
+ * 
+ * * @Hateoas\Relation(
+ *      "update",
+ *      href = @Hateoas\Route(
+ *          "app_smartphone_update",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getSmartphones", excludeIf = "expr(not is_granted('ROLE_ADMIN'))")
+ * )
+ * 
+ * * @Hateoas\Relation(
+ *      "delete",
+ *      href = @Hateoas\Route(
+ *          "app_smartphone_delete",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getSmartphones", excludeIf = "expr(not is_granted('ROLE_ADMIN'))")
+ * )
+ */
 #[ORM\Entity(repositoryClass: SmartphoneRepository::class)]
 class Smartphone
 {
