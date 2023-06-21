@@ -23,7 +23,7 @@ class UserController extends AbstractController
     #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function getAllCustomers(UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {
-        $context = SerializationContext::create()->setGroups(["getUsers"]);
+        $context = SerializationContext::create()->setGroups(["getCustomers"]);
         $customersList = $userRepository->findByRoleCustomers();
 
         $jsonCustomersList = $serializer->serialize($customersList, 'json', $context);
@@ -35,7 +35,7 @@ class UserController extends AbstractController
     public function getOneCustomers(int $id, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {
         $customer = $userRepository->findCustomerById($id);
-        $context = SerializationContext::create()->setGroups(["getUsers"]);
+        $context = SerializationContext::create()->setGroups(["getCustomers"]);
 
         //Vérification Customer existe
         if (!$customer) {
@@ -65,7 +65,7 @@ class UserController extends AbstractController
     public function getOneUser(int $id, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {
         $user = $userRepository->findOneBy(['id' => $id]);
-        $context = SerializationContext::create()->setGroups(["getUsers"]);
+        $context = SerializationContext::create()->setGroups(["getOneUser"]);
 
         $userConnected = $this->getUser();
 
@@ -94,7 +94,7 @@ class UserController extends AbstractController
         UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $newUser = $serializer->deserialize($request->getContent(), User::class, 'json');
-        $context = SerializationContext::create()->setGroups(["getUsers"]);
+        $context = SerializationContext::create()->setGroups(["getCustomers"]);
 
         // Récupération de l'ensemble des données envoyées sous forme de tableau
         $content = $request->toArray();

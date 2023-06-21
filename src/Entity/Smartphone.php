@@ -16,7 +16,7 @@ use Hateoas\Configuration\Annotation as Hateoas;
  *          "app_smartphone_detail",
  *          parameters = { "id" = "expr(object.getId())" }
  *      ),
- *      exclusion = @Hateoas\Exclusion(groups="getSmartphones")
+ *      exclusion = @Hateoas\Exclusion(groups="getSmartphones", excludeIf = "expr(not is_granted('ROLE_ADMIN') && not is_granted('ROLE_CUSTOMERS'))")
  * )
  * 
  * @Hateoas\Relation(

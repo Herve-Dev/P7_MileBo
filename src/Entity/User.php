@@ -9,6 +9,53 @@ use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Hateoas\Configuration\Annotation as Hateoas;
+
+/**
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "app_customers_detail",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getCustomers", excludeIf = "expr(not is_granted('ROLE_ADMIN'))")
+ * )
+ * 
+ * @Hateoas\Relation(
+ *      "all users of a client",
+ *      href = @Hateoas\Route(
+ *          "app_user_bycustomer",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getCustomers", excludeIf = "expr(not is_granted('ROLE_ADMIN') && not is_granted('ROLE_CUSTOMERS'))")
+ * )
+ * 
+ * @Hateoas\Relation(
+ *      "get one user",
+ *      href = @Hateoas\Route(
+ *          "app_one_user",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getUsers", excludeIf = "expr(not is_granted('ROLE_ADMIN') && not is_granted('ROLE_CUSTOMERS'))")
+ * )
+ * 
+ * @Hateoas\Relation(
+ *      "add new user",
+ *      href = @Hateoas\Route(
+ *          "app_user_add"
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getOneUser", excludeIf = "expr(not is_granted('ROLE_ADMIN'))")
+ * )
+ * 
+ * @Hateoas\Relation(
+ *      "delete user",
+ *      href = @Hateoas\Route(
+ *          "app_user_delete",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getOneUser", excludeIf = "expr(not is_granted('ROLE_ADMIN'))")
+ * )
+ */
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -16,15 +63,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["getUsers"])]
+    #[Groups(["getCustomers", "getUsers", "getOneUser"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Groups(["getUsers"])]
+    #[Groups(["getCustomers", "getUsers", "getOneUser"])]
     private ?string $email = null;
 
     #[ORM\Column]
-    #[Groups(["getUsers"])]
+    #[Groups(["getCustomers", "getUsers", "getOneUser"])]
     private array $roles = [];
 
     /**
@@ -34,14 +81,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'users')]
-    #[Groups(["getUsers"])]
+    #[Groups(["getCustomers"])]
     private ?self $parent = null;
 
     #[ORM\OneToMany(mappedBy: 'parent', targetEntity: self::class)]
     private Collection $users;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["getUsers"])]
+    #[Groups(["getCustomers", "getUsers", "getOneUser"])]
     private ?string $pseudo = null;
 
 
@@ -145,7 +192,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, self>
      */
-    public function getUsers(): Collection
+    public function getCustomers(): Collection
     {
         return $this->users;
     }
