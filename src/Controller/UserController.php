@@ -4,12 +4,13 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use JMS\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -22,9 +23,10 @@ class UserController extends AbstractController
     #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function getAllCustomers(UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {
+        $context = SerializationContext::create()->setGroups(["getCustomers"]);
         $customersList = $userRepository->findByRoleCustomers();
 
-        $jsonCustomersList = $serializer->serialize($customersList, 'json', ['groups' => 'getUsers']);
+        $jsonCustomersList = $serializer->serialize($customersList, 'json', $context);
         return new JsonResponse($jsonCustomersList, Response::HTTP_OK, [], true);
     }
 
@@ -33,6 +35,7 @@ class UserController extends AbstractController
     public function getOneCustomers(int $id, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {
         $customer = $userRepository->findCustomerById($id);
+        $context = SerializationContext::create()->setGroups(["getCustomers"]);
 
         //Vérification Customer existe
         if (!$customer) {
@@ -42,7 +45,7 @@ class UserController extends AbstractController
             return new JsonResponse($responseData, Response::HTTP_NOT_FOUND);
         }
 
-        $jsonCustomer = $serializer->serialize($customer, 'json', ['groups' => 'getUsers']);
+        $jsonCustomer = $serializer->serialize($customer, 'json', $context);
         return new JsonResponse($jsonCustomer, Response::HTTP_OK, [], true);
     }
 
@@ -51,8 +54,9 @@ class UserController extends AbstractController
     public function getAllUsersByCustomers(int $id, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {
         $users = $userRepository->findUsersByRoleAndParentId($id);
+        $context = SerializationContext::create()->setGroups(["getUsers"]);
 
-        $jsonUsers = $serializer->serialize($users, 'json', ['groups' => 'getUsers']);
+        $jsonUsers = $serializer->serialize($users, 'json', $context);
         return new JsonResponse($jsonUsers, Response::HTTP_OK, [], true);
     }
 
@@ -61,6 +65,7 @@ class UserController extends AbstractController
     public function getOneUser(int $id, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {
         $user = $userRepository->findOneBy(['id' => $id]);
+        $context = SerializationContext::create()->setGroups(["getOneUser"]);
 
         $userConnected = $this->getUser();
 
@@ -73,7 +78,7 @@ class UserController extends AbstractController
         }
 
 
-        $jsonUser = $serializer->serialize($user, 'json', ['groups' => 'getUsers']);
+        $jsonUser = $serializer->serialize($user, 'json', $context);
         return new JsonResponse($jsonUser, Response::HTTP_OK, [], true);
 
     }
@@ -89,6 +94,7 @@ class UserController extends AbstractController
         UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $newUser = $serializer->deserialize($request->getContent(), User::class, 'json');
+        $context = SerializationContext::create()->setGroups(["getCustomers"]);
 
         // Récupération de l'ensemble des données envoyées sous forme de tableau
         $content = $request->toArray();
@@ -130,7 +136,7 @@ class UserController extends AbstractController
         $em->flush();
 
         //On précise le contexte avec la classe Groups serializer appelé dans mes entités
-        $jsonNewUser = $serializer->serialize($newUser, 'json', ['groups' => 'getUsers']);
+        $jsonNewUser = $serializer->serialize($newUser, 'json', $context);
 
         //On génère une url qui sera retourné pour avoir acces au nouveau utilisateur rajouté
         $location = $urlGenerator->generate('app_one_user', ['id' => $newUser->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
