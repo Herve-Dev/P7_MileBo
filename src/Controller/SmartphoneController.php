@@ -27,6 +27,15 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\serializer;
 
 class SmartphoneController extends AbstractController
 {
+    /**
+     * Methode pour récupérer tout les smartphones
+     *
+     * @param SmartphoneRepository $smartphoneRepository
+     * @param SerializerInterface $serializer
+     * @param Request $request
+     * @param TagAwareCacheInterface $cache
+     * @return JsonResponse
+     */
     #[Route('/api/smartphones', name: 'app_smartphone', methods: ['GET'])]
     #[Security('is_granted("ROLE_CUSTOMERS") or is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function getAllSmartphones(SmartphoneRepository $smartphoneRepository, 
@@ -57,16 +66,23 @@ class SmartphoneController extends AbstractController
         return new JsonResponse($jsonSmartphoneList, Response::HTTP_OK, [], true);
     }
 
+    /**
+     * Methode pour récupérer un smartphone via son id
+     */ 
     #[Route('/api/smartphone/{id}', name: 'app_smartphone_detail', methods: ['GET'])]
     #[Security('is_granted("ROLE_CUSTOMERS") or is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function getDetailSmartphone(Smartphone $smartphone, SerializerInterface $serializer): JsonResponse
     {
         $context = SerializationContext::create()->setGroups(["getSmartphones"]);
+
         //On précise le contexte avec la classe Groups serializer appelé dans mes entités
         $jsonSmartphone = $serializer->serialize($smartphone, 'json', $context);
         return new JsonResponse($jsonSmartphone, Response::HTTP_OK, [], true);
     }
 
+    /**
+     * Methode pour supprimer un smartphone via son id
+     */
     #[Route('/api/smartphone/{id}', name: 'app_smartphone_delete', methods: ['DELETE'])]
     #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function deleteSmartphone(Smartphone $smartphone, EntityManagerInterface $em, TagAwareCacheInterface $cache): JsonResponse
@@ -77,9 +93,20 @@ class SmartphoneController extends AbstractController
         //Supression du smartphone avec l'id lié
         $em->remove($smartphone);
         $em->flush();
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        return new JsonResponse(['message' => 'Suppression réussie'], Response::HTTP_OK);
     }
 
+    /**
+     * Methode pour ajouter un nouveau smartphone
+     *
+     * @param Request $request
+     * @param SerializerInterface $serializer
+     * @param EntityManagerInterface $em
+     * @param UrlGeneratorInterface $urlGenerator
+     * @param ValidatorInterface $validator
+     * @param SocietyRepository $society
+     * @return JsonResponse
+     */
     #[Route('/api/smartphones', name: 'app_smartphone_add', methods: ['POST'])]
     #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function createSmartphone(
@@ -124,6 +151,9 @@ class SmartphoneController extends AbstractController
         return new JsonResponse($jsonSmartphone, Response::HTTP_CREATED, ['location' => $location], true);
     }
 
+    /**
+     * Méthode pour mettre à jour un smartphone.
+     */
     #[Route('/api/smartphone/{id}', name: 'app_smartphone_update', methods: ['PUT'])]
     #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function updateSmartphone(Request $request, 
