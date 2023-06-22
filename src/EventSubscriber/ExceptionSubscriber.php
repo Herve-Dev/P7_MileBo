@@ -2,11 +2,14 @@
 
 namespace App\EventSubscriber;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+
 
 class ExceptionSubscriber implements EventSubscriberInterface
 {
@@ -14,25 +17,31 @@ class ExceptionSubscriber implements EventSubscriberInterface
     {
         $exception = $event->getThrowable();
 
-        if ($exception instanceof HttpException) {
+        if ($exception instanceof AccessDeniedException) {
             $data = [
-                'status' => $exception->getStatusCode(),
-                'message' => $exception->getMessage()
+                'status' => Response::HTTP_FORBIDDEN,
+                'message' => "Vous n'avez pas les droits suffisants pour accéder à cette ressource.",
             ];
-            $event->setResponse(new JsonResponse($data));
+        } elseif ($exception instanceof NotFoundHttpException) {
+            $data = [
+                'status' => Response::HTTP_NOT_FOUND,
+                'message' => 'Ressource non trouvée',
+            ];
         } else {
             $data = [
-                'status' => 500, // Le status n'existe pas car ce n'est pas une exception HTTP, donc on met 500
-                'message' => $exception->getMessage()
+                'status' => 500,
+                'message' => $exception->getMessage(),
             ];
-            $event->setResponse(new JsonResponse($data));
         }
+
+        $event->setResponse(new JsonResponse($data));
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::EXCEPTION => 'onKernelException',
+            //Le nombre 128 indique la priorité de votre gestionnaire d'exceptions parmi les autres gestionnaires qui écoutent également l'événement
+            KernelEvents::EXCEPTION => ['onKernelException', 128],
         ];
     }
 }

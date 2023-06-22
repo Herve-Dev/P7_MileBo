@@ -19,6 +19,13 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserController extends AbstractController
 {
+    /**
+     * Méthode pour recevoir tout les clients 
+     *
+     * @param UserRepository $userRepository
+     * @param SerializerInterface $serializer
+     * @return JsonResponse
+     */
     #[Route('/api/clients', name: 'app_customers', methods: ['GET'])]
     #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function getAllCustomers(UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
@@ -30,20 +37,15 @@ class UserController extends AbstractController
         return new JsonResponse($jsonCustomersList, Response::HTTP_OK, [], true);
     }
 
+    /**
+     * Méthode pour recevoir detail d'un client.
+     */
     #[Route('/api/client/{id}', name: 'app_customers_detail', methods: ['GET'])]
     #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function getOneCustomers(int $id, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {
         $customer = $userRepository->findCustomerById($id);
         $context = SerializationContext::create()->setGroups(["getCustomers"]);
-
-        //Vérification Customer existe
-        if (!$customer) {
-            $responseData = [
-                'message' => "La ressource demandée n'a pas été trouvée.",
-            ];
-            return new JsonResponse($responseData, Response::HTTP_NOT_FOUND);
-        }
 
         $jsonCustomer = $serializer->serialize($customer, 'json', $context);
         return new JsonResponse($jsonCustomer, Response::HTTP_OK, [], true);
@@ -60,6 +62,9 @@ class UserController extends AbstractController
         return new JsonResponse($jsonUsers, Response::HTTP_OK, [], true);
     }
 
+    /**
+     * Méthode pour recevoir detail d'un Utilisateur
+     */
     #[Route('/api/utilisateur/{id}', name: 'app_one_user', methods: ['GET'])]
     #[Security('is_granted("ROLE_CUSTOMERS") or is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function getOneUser(int $id, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
@@ -77,12 +82,22 @@ class UserController extends AbstractController
             return new JsonResponse($responseData, Response::HTTP_FORBIDDEN);
         }
 
-
         $jsonUser = $serializer->serialize($user, 'json', $context);
         return new JsonResponse($jsonUser, Response::HTTP_OK, [], true);
-
     }
 
+    /**
+     * Méthode pour ajouter un Utilisateur
+     *
+     * @param Request $request
+     * @param SerializerInterface $serializer
+     * @param EntityManagerInterface $em
+     * @param UrlGeneratorInterface $urlGenerator
+     * @param ValidatorInterface $validator
+     * @param UserRepository $userRepository
+     * @param UserPasswordHasherInterface $passwordHasher
+     * @return JsonResponse
+     */
     #[Route('/api/ajout_utilisateur', name: 'app_user_add', methods: ['POST'])]
     #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function addNewUser(Request $request, 
@@ -145,6 +160,9 @@ class UserController extends AbstractController
         return new JsonResponse($jsonNewUser, Response::HTTP_CREATED, ['location' => $location], true);
     }
 
+    /**
+     * Méthode pour supprimer un utilisateur
+     */
     #[Route('/api/delete_utilisateur/{id}', name: 'app_user_delete', methods: ['DELETE'])]
     #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function deleteUser(User $user, EntityManagerInterface $em) : JsonResponse
@@ -152,7 +170,7 @@ class UserController extends AbstractController
         if (count($user->getRoles()) === 1 && in_array('ROLE_USER', $user->getRoles())) {
             $em->remove($user);
             $em->flush();
-            return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+            return new JsonResponse(['message' => 'Suppression réussie'], Response::HTTP_OK);
         }
 
         $responseData = [
