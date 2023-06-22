@@ -15,16 +15,32 @@ Le premier client a enfin signé un contrat de partenariat avec BileMo ! C’est
 
  Après une réunion dense avec le client, il a été identifié un certain nombre d’informations. Il doit être possible de :
 
--consulter la liste des produits BileMo ;
+- consulter la liste des produits BileMo ;
 
--consulter les détails d’un produit BileMo ;
+- consulter les détails d’un produit BileMo ;
 
--consulter la liste des utilisateurs inscrits liés à un client sur le site web ;
+- consulter la liste des utilisateurs inscrits liés à un client sur le site web ;
 
--consulter le détail d’un utilisateur inscrit lié à un client ;
+- consulter le détail d’un utilisateur inscrit lié à un client ;
 
--ajouter un nouvel utilisateur lié à un client ;
+- ajouter un nouvel utilisateur lié à un client ;
 
--supprimer un utilisateur ajouté par un client.
+- supprimer un utilisateur ajouté par un client.
 
 Seuls les clients référencés peuvent accéder aux API. Les clients de l’API doivent être authentifiés via OAuth ou JWT.
+
+# Installation
+
+1. Faite un git clone du projet 
+2. Ouvrez votre terminal dans le projet et faite un `composer install`.
+3. Créez un dossier "jwt" dans le dossier "config" du projet.
+4. Ouvrez un terminal Git dans le projet et saisissez les commandes suivantes :
+   - `openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096`
+   - `openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem-pubout`
+   - (Une “passphrase” vous sera demandée. Cette passphrase va en quelque sorte servir de clef pour l’encodage/décodage du token. Elle doit rester secrète !)
+5. Créez votre un fichier .env.local et configurez votre base de données (Vous trouverez un exemple dans le fichier `.env`). 
+6. Dans le fichier `.env.local` a la ligne `JWT_PASSPHRASE=` mettez votre clef précédement créée via OpenSSL.
+7. Ouvrez un nouveau terminal et taper `php bin/console doctrine:database:create`.
+8. Taper egalement a la suite `php bin/console doctrine:migrations:migrate`. 
+9. il faut ajouter les datafixtures avec cette ligne a la suite toujours dans le terminal `php bin/console doctrine:fixtures:load --no-interaction`.    
+10. Vous êtes encore là ? c'est parfait le projet est installé avec succès !
