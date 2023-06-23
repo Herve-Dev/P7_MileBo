@@ -51,5 +51,43 @@ Seuls les clients référencés peuvent accéder aux API. Les clients de l’API
 8. Taper egalement a la suite `php bin/console doctrine:migrations:migrate`.
    
 9. il faut ajouter les datafixtures avec cette ligne a la suite toujours dans le terminal `php bin/console doctrine:fixtures:load --no-interaction`.
+
+10. un derniere ligne dans le terminal `Symfony server:start` pour lancer le serveur.
         
-10. Vous êtes encore là ? c'est parfait le projet est installé avec succès !
+11. Vous êtes encore là ? c'est parfait le projet est installé avec succès !
+
+# route API
+
+```sh
+[GET] {/api/smartphones} Route pour récupérer la liste complète des smartphones.
+```
+```sh
+[GET] {/api/smartphone/{id}} Route pour récupérer un smartphone selon son ID.
+```
+```sh
+[DELETE] {/api/smartphone/{id}} Route pour supprimer un smartphone selon son ID.
+```
+```sh
+[POST] {/api/smartphones} Route pour ajouter un smartphone. 
+```
+```sh
+[PUT] {/api/smartphone/{id}} Route pour mettre à jour un smartphone selon son ID.
+```
+```sh
+[GET] {/api/clients} Route pour récupérer la liste des clients (*5).
+```
+```sh
+[GET] {/api/client/{id}} Route pour récupérer un client selon son ID.
+```
+```sh
+[GET] {/api/utilisateurs/client/{id}} Route pour récupérer les utilisateurs d'un client selon son ID.
+```
+```sh
+[GET] {/api/utilisateurs/{id}} Route pour récupérer les détails de l'utilisateur selon son ID. 
+```
+```sh
+[POST] {/api/ajout_utilisateur} Route pour ajouter un utilisateur.
+```
+```sh
+[POST] {/api/delete_utilisateur/{id}} Route pour supprimer un utilisateur.
+```
