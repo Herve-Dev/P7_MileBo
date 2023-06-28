@@ -58,6 +58,16 @@ Seuls les clients référencés peuvent accéder aux API. Les clients de l’API
 
 # route API
 
+Pour utiliser l'API vous retrouverez les emails et mot de passes dans les dataFixtures .
+- Mot de passe Admin ("PasswordAdmin123") 
+- Mot de passe Client ("PasswordCustomer123") 
+- Mot de passe User ("PasswordUser123") 
+
+Pensez à mettre le token dans le bearer de chaque route (Token accessible dans la route {/api/login_check} ) 
+
+```sh
+[POST] {/api/login_check} Route pour se connecter (Token)
+```
 ```sh
 [GET] {/api/smartphones} Route pour récupérer la liste complète des smartphones.
 ```
