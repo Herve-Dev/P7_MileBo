@@ -24,10 +24,35 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\serializer;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Annotations as OA;
 
 class SmartphoneController extends AbstractController
 {
     /**
+     * @OA\Response(
+     *     response=200,
+     *     description="Retourne la liste des livres",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=Smartphone::class, groups={"getSmartphones"}))
+     *     )
+     * )
+     * @OA\Parameter(
+     *     name="page",
+     *     in="query",
+     *     description="La page que l'on veut récupérer",
+     *     @OA\Schema(type="int")
+     * )
+     *
+     * @OA\Parameter(
+     *     name="limit",
+     *     in="query",
+     *     description="Le nombre d'éléments que l'on veut récupérer",
+     *     @OA\Schema(type="int")
+     * )
+     * @OA\Tag(name="Smartphones")
+     * 
      * Methode pour récupérer tout les smartphones
      *
      * @param SmartphoneRepository $smartphoneRepository
@@ -81,8 +106,32 @@ class SmartphoneController extends AbstractController
     }
 
     /**
-     * Methode pour supprimer un smartphone via son id
-     */
+    * @OA\Delete(
+    *     path="/api/smartphone/{id}",
+    *     summary="Supprimer un smartphone",
+    *     tags={"Smartphones"},
+    *     @OA\Parameter(
+    *         name="id",
+    *         in="path",
+    *         description="ID du smartphone à supprimer",
+    *         required=true,
+    *         @OA\Schema(type="integer")
+    *     ),
+    *     @OA\Response(
+    *         response=200,
+    *         description="Le smartphone a été supprimé avec succès"
+    *     ),
+    *     @OA\Response(
+    *         response=403,
+    *         description="Accès refusé"
+    *     ),
+    *     @OA\Response(
+    *         response=404,
+    *         description="Smartphone non trouvé"
+    *     )
+    * )
+    * Methode pour supprimer un smartphone via son id
+    */
     #[Route('/api/smartphone/{id}', name: 'app_smartphone_delete', methods: ['DELETE'])]
     #[Security('is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function deleteSmartphone(Smartphone $smartphone, EntityManagerInterface $em, TagAwareCacheInterface $cache): JsonResponse
@@ -97,6 +146,33 @@ class SmartphoneController extends AbstractController
     }
 
     /**
+     * @OA\Post(
+     *     path="/api/smartphones",
+     *     summary="Créer un nouveau smartphone",
+     *     tags={"Smartphones"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Données du smartphone à créer",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *               @OA\Schema(
+     *                   @OA\Property(property="phone_brand", type="string", example="Smartphone 80"),
+     *                   @OA\Property(property="phone_model", type="string", example="Android 80"),
+     *                   @OA\Property(property="phone_description", type="string", example="nouveau smartphone 80 (test route Post Nelmio)"),
+     *                   @OA\Property(property="phone_created_at", type="string", format="date-time", example="2023-04-25T05:06:32+00:00"),
+     *                   @OA\Property(property="idSociety", type="integer", example=1)
+     *                )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Le smartphone a été créé avec succès"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Requête invalide"
+     *     ),
+     * )
      * Methode pour ajouter un nouveau smartphone
      *
      * @param Request $request
@@ -152,6 +228,48 @@ class SmartphoneController extends AbstractController
     }
 
     /**
+     * @OA\Put(
+     *     path="/api/smartphone/{id}",
+     *     summary="Mettre à jour un smartphone existant",
+     *     tags={"Smartphones"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID du smartphone à mettre à jour",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Nouvelles données du smartphone",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(property="phone_brand", type="string", example="Smartphone 80"),
+     *                 @OA\Property(property="phone_model", type="string", example="Android 80"),
+     *                 @OA\Property(property="phone_description", type="string", example="update smartphone 80 (test route Post Nelmio)"),
+     *                 @OA\Property(property="phone_created_at", type="string", format="date-time", example="2023-06-29T10:00:00+00:00"),
+     *                 @OA\Property(property="idSociety", type="integer", example=1)
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="Le smartphone a été mis à jour avec succès"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Requête invalide"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Accès refusé"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Smartphone non trouvé"
+     *     )
+     * )
      * Méthode pour mettre à jour un smartphone.
      */
     #[Route('/api/smartphone/{id}', name: 'app_smartphone_update', methods: ['PUT'])]
