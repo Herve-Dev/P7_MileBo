@@ -58,10 +58,14 @@ Seuls les clients référencés peuvent accéder aux API. Les clients de l’API
 
 # route API
 
-Pour utiliser l'API vous retrouverez les emails et mot de passes dans les dataFixtures .
-- Mot de passe Admin ("PasswordAdmin123") 
-- Mot de passe Client ("PasswordCustomer123") 
-- Mot de passe User ("PasswordUser123") 
+![capture milebo](https://github.com/Herve-Dev/P7_MileBo/assets/82519929/8f27610a-e19e-49e4-8046-9e98fb68f3d6)
+
+Pour utiliser l'API 
+- Lancer un `Symfony server:start` dans votre terminal
+- Ouvrez votre navigateur et inscrire dans l'url la route de votre serveur exemple `https://127.0.0.1:8000/api/doc`.
+- Vous retrouverez toutes les routes de l'API sur la route login_check recuperer le token généré (par default c'est un utilisateur Admin).
+- Copier le token et rajouter le dans la section Autorize en ajoutant bearer avant le token.
+- Les Utilisateurs disponible sont dans le fichier dataFixtures.
 
 Pensez à mettre le token dans le bearer de chaque route (Token accessible dans la route {/api/login_check} ) 
 
