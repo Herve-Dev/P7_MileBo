@@ -48,7 +48,7 @@ class AppFixtures extends Fixture
         }
 
         $admin = new User();
-        $admin->setEmail($faker->email());
+        $admin->setEmail("admin@milbo.fr");
         $admin->setRoles(['ROLE_ADMIN']);
         $admin->setPseudo('MilBo');
         $admin->setPassword(
@@ -65,10 +65,18 @@ class AppFixtures extends Fixture
             'Google',
         ];
 
+        $arrayCustomersEmail = [
+            'customers@apple.com',
+            'customers@samsung.com',
+            'customers@huawei.com',
+            'customers@sony.com',
+            'customers@google.com',
+        ];
+
         //Création des clients
         for ($cts=0; $cts < 5 ; $cts++) {
             $customers = new User();
-            $customers->setEmail($faker->email());
+            $customers->setEmail($arrayCustomersEmail[$cts]);
             $customers->setRoles(['ROLE_CUSTOMERS']);
             $customers->setPseudo($arrayCustomers[$cts]);
             $customers->setPassword(
