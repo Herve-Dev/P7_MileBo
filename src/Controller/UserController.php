@@ -16,10 +16,25 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Annotations as OA;
 
 class UserController extends AbstractController
 {
     /**
+     * @OA\Get(
+     *     path="/api/clients",
+     *     summary="Obtenir la liste des clients",
+     *     tags={"Clients"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Liste des clients récupérée avec succès"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Accès refusé"
+     *     )
+     * )
      * Méthode pour recevoir tout les clients 
      *
      * @param UserRepository $userRepository
@@ -38,6 +53,33 @@ class UserController extends AbstractController
     }
 
     /**
+     * @OA\Get(
+     *     path="/api/client/{id}",
+     *     summary="Obtenir les détails d'un client",
+     *     tags={"Clients"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID du client",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *             format="int64"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Détails du client récupérés avec succès"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Accès refusé"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Client non trouvé"
+     *     )
+     * )
      * Méthode pour recevoir detail d'un client.
      */
     #[Route('/api/client/{id}', name: 'app_customers_detail', methods: ['GET'])]
@@ -51,6 +93,31 @@ class UserController extends AbstractController
         return new JsonResponse($jsonCustomer, Response::HTTP_OK, [], true);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/utilisateurs/client/{id}",
+     *     summary="Récupérer tous les utilisateurs par client",
+     *     tags={"Utilisateurs"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID du client",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Liste des utilisateurs récupérée avec succès"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Accès refusé"
+     *     )
+     * )
+     * Méthode pour obtenir tout les utilisateurs d'un client bia son id
+     */
     #[Route('/api/utilisateurs/client/{id}', name: 'app_user_bycustomer', methods: ['GET'])]
     #[Security('is_granted("ROLE_CUSTOMERS") or is_granted("ROLE_ADMIN")', message: "Vous n'avez pas les droits suffisants pour accéder à cette ressource.")]
     public function getAllUsersByCustomers(int $id, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
@@ -62,7 +129,34 @@ class UserController extends AbstractController
         return new JsonResponse($jsonUsers, Response::HTTP_OK, [], true);
     }
 
-    /**
+     /**
+     * @OA\Get(
+     *     path="/api/utilisateur/{id}",
+     *     summary="Obtenir les détails d'un utilisateur",
+     *     tags={"Utilisateurs"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID de l'utilisateur",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *             format="int64"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Détails de l'utilisateur récupérés avec succès"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Accès refusé"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Utilisateur non trouvé"
+     *     )
+     * )
      * Méthode pour recevoir detail d'un Utilisateur
      */
     #[Route('/api/utilisateur/{id}', name: 'app_one_user', methods: ['GET'])]
@@ -87,6 +181,44 @@ class UserController extends AbstractController
     }
 
     /**
+     * @OA\Post(
+     *     path="/api/ajout_utilisateur",
+     *     summary="Ajouter un nouvel utilisateur",
+     *     tags={"Utilisateurs"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         description="Données du nouvel utilisateur",
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(property="email", type="string", example="user@test.fr"),
+     *                 @OA\Property(property="pseudo", type="string", example="testUser"),
+     *                 @OA\Property(property="password", type="string", example="PasswordUser123"),
+     *                 @OA\Property(property="idParent", type="integer", example=2),
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Nouvel utilisateur créé avec succès",
+     *         @OA\Header(
+     *             header="Location",
+     *             description="URL de l'utilisateur créé",
+     *             @OA\Schema(
+     *                 type="string",
+     *                 format="url"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Requête invalide"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Accès refusé"
+     *     )
+     * )
      * Méthode pour ajouter un Utilisateur
      *
      * @param Request $request
@@ -161,6 +293,28 @@ class UserController extends AbstractController
     }
 
     /**
+     * @OA\Delete(
+     *     path="/api/delete_utilisateur/{id}",
+     *     summary="Supprimer un utilisateur",
+     *     tags={"Utilisateurs"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID de l'utilisateur à supprimer",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Utilisateur supprimé avec succès"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Accès refusé"
+     *     )
+     * )
      * Méthode pour supprimer un utilisateur
      */
     #[Route('/api/delete_utilisateur/{id}', name: 'app_user_delete', methods: ['DELETE'])]

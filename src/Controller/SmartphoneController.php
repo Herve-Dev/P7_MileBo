@@ -92,6 +92,28 @@ class SmartphoneController extends AbstractController
     }
 
     /**
+     * @OA\Get(
+     *     path="/api/smartphone/{id}",
+     *     summary="Récupérer les détails d'un smartphone",
+     *     tags={"Smartphones"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID du smartphone",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Détails du smartphone récupérés avec succès"
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Accès refusé"
+     *     )
+     * )
      * Methode pour récupérer un smartphone via son id
      */ 
     #[Route('/api/smartphone/{id}', name: 'app_smartphone_detail', methods: ['GET'])]
